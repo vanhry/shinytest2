@@ -10,6 +10,10 @@ inputs:
     description: 'Whether to upload all testthat snapshots as an artifact.'
     default: true
     required: false
+  filter:
+    description: 'Use specific files'
+    default: null
+    required: false
 runs:
   using: "composite"
   steps:
@@ -20,7 +24,7 @@ runs:
         ## -- rstudio/shinytest2/actions/test-app --------------------------------------
         options(crayon.enabled = TRUE)
         app_dirs <- strsplit("${{ inputs.app-dir }}", "[[:space:],]+")[[1]]
-
+        filter <- "${{ inputs.filter }}"
         ## Outputs
         # `paths-json`
         snap_paths <- paste0(app_dirs, "/tests/testthat/_snaps")
@@ -42,7 +46,7 @@ runs:
               # Wrap in try for the rare chance `cli` isn't installed
               try(cli::cat_rule(paste0("{shinytest2}: ", app_dir), line = "bar3"))
               # Test app
-              try(shinytest2::test_app(app_dir), silent = FALSE)
+              try(shinytest2::test_app(app_dir, filter = filter), silent = FALSE)
             },
             list(app_dir = app_dir, i = i),
             show = TRUE
